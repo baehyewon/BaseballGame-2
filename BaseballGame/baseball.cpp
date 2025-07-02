@@ -17,55 +17,21 @@ public:
 	}
 
 	GuessResult guess(const string& guessNumber) {
-		
 		assertIllegalArgument(guessNumber);
-		GuessResult guessResult{0,0,0};
-
-		if (guessNumber == question) {
-			guessResult.solved = true;
-			guessResult.strikes = 3;
-			guessResult.balls = 0;
-			return guessResult;
-		}
 		
-		CheckStrikeAndSetCharMap(guessNumber, guessResult);
+		if (IsAllCorrect(guessNumber)) return guessResult;
 
-		CheckBallCount(guessResult);
+		CheckStrikeCountAndSetChar(guessNumber);
+		CheckBallCount();
 		
 		return guessResult;
 	}
 
-	void CheckBallCount(GuessResult& guessResult)
-	{
-		int valueMatch = 0;
-		for (const auto& pair : ansNmbers) {
-			char ch = pair.first;
-			int cnt = pair.second;
-
-			if (guessNumbers.count(ch)) {
-				valueMatch += min(cnt, guessNumbers[ch]);
-			}
-		}
-		guessResult.balls = valueMatch;
-	}
-
-	void CheckStrikeAndSetCharMap(const std::string& guessNumber, GuessResult& guessResult)
-	{
-		for (int i = 0; i < question.size(); ++i) {
-			if (guessNumber[i] == question[i]) {
-				guessResult.strikes++;
-			}
-			else {
-				ansNmbers[question[i]]++;
-				guessNumbers[guessNumber[i]]++;
-			}
-		}
-	}
-
 private:
 	string question;
-	unordered_map<char, int> ansNmbers;
-	unordered_map<char, int> guessNumbers;
+	GuessResult guessResult{ 0,0,0 };
+	unordered_map<char, int> notMachedAnsNmbers;
+	unordered_map<char, int> notMachedGuessNumbers;
 
 	void assertIllegalArgument(const std::string& guessNumber)
 	{
@@ -89,4 +55,37 @@ private:
 			|| guessNumber[1] == guessNumber[2];
 	}
 
+	bool IsAllCorrect(const std::string& guessNumber)
+	{
+		if (guessNumber != question) return false;
+		guessResult.solved = true;
+		guessResult.strikes = 3;
+		guessResult.balls = 0;
+		return true;
+	}
+	void CheckStrikeCountAndSetChar(const std::string& guessNumber)
+	{
+		for (int i = 0; i < question.size(); ++i) {
+			if (guessNumber[i] == question[i]) {
+				guessResult.strikes++;
+			}
+			else {
+				notMachedAnsNmbers[question[i]]++;
+				notMachedGuessNumbers[guessNumber[i]]++;
+			}
+		}
+	}
+	void CheckBallCount()
+	{
+		int valueMatch = 0;
+		for (const auto& pair : notMachedAnsNmbers) {
+			char ch = pair.first;
+			int cnt = pair.second;
+
+			if (notMachedGuessNumbers.count(ch)) {
+				valueMatch += min(cnt, notMachedGuessNumbers[ch]);
+			}
+		}
+		guessResult.balls = valueMatch;
+	}
 };
