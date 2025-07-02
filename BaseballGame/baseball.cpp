@@ -17,7 +17,7 @@ public:
 	}
 
 	GuessResult guess(const string& guessNumber) {
-		int valueMatch = 0;
+		
 		assertIllegalArgument(guessNumber);
 		GuessResult guessResult{0,0,0};
 
@@ -28,8 +28,16 @@ public:
 			return guessResult;
 		}
 		
-		CheckStrike(guessNumber, guessResult);
+		CheckStrikeAndSetCharMap(guessNumber, guessResult);
 
+		CheckBallCount(guessResult);
+		
+		return guessResult;
+	}
+
+	void CheckBallCount(GuessResult& guessResult)
+	{
+		int valueMatch = 0;
 		for (const auto& pair : ansNmbers) {
 			char ch = pair.first;
 			int cnt = pair.second;
@@ -39,11 +47,9 @@ public:
 			}
 		}
 		guessResult.balls = valueMatch;
-		
-		return guessResult;
 	}
 
-	void CheckStrike(const std::string& guessNumber, GuessResult& guessResult)
+	void CheckStrikeAndSetCharMap(const std::string& guessNumber, GuessResult& guessResult)
 	{
 		for (int i = 0; i < question.size(); ++i) {
 			if (guessNumber[i] == question[i]) {
