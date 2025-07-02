@@ -1,5 +1,8 @@
 #include <stdexcept>
+#include <string>
+#include<unordered_map>
 using namespace std;
+
 struct GuessResult {
 	bool solved;
 	int strikes;
@@ -8,20 +11,55 @@ struct GuessResult {
 
 class Baseball {
 public:
-	GuessResult guess(const string& guessNumber) {
-		assertIllegalArgument(guessNumber);
-		if (guessNumber == question) {
-			return { true, 3, 0 };
-		}
-		return { true, 3, 0 };
-	}
 	explicit Baseball(const string& question)
 		: question(question)
 	{
 	}
 
+	GuessResult guess(const string& guessNumber) {
+		int valueMatch = 0;
+		assertIllegalArgument(guessNumber);
+		GuessResult guessResult{0,0,0};
+
+		if (guessNumber == question) {
+			guessResult.solved = true;
+			guessResult.strikes = 3;
+			guessResult.balls = 0;
+			return guessResult;
+		}
+		
+		CheckStrike(guessNumber, guessResult);
+
+		for (const auto& pair : ansNmbers) {
+			char ch = pair.first;
+			int cnt = pair.second;
+
+			if (guessNumbers.count(ch)) {
+				valueMatch += min(cnt, guessNumbers[ch]);
+			}
+		}
+		guessResult.balls = valueMatch;
+		
+		return guessResult;
+	}
+
+	void CheckStrike(const std::string& guessNumber, GuessResult& guessResult)
+	{
+		for (int i = 0; i < question.size(); ++i) {
+			if (guessNumber[i] == question[i]) {
+				guessResult.strikes++;
+			}
+			else {
+				ansNmbers[question[i]]++;
+				guessNumbers[guessNumber[i]]++;
+			}
+		}
+	}
+
 private:
 	string question;
+	unordered_map<char, int> ansNmbers;
+	unordered_map<char, int> guessNumbers;
 
 	void assertIllegalArgument(const std::string& guessNumber)
 	{
@@ -44,4 +82,5 @@ private:
 			|| guessNumber[0] == guessNumber[2]
 			|| guessNumber[1] == guessNumber[2];
 	}
+
 };
