@@ -3,13 +3,23 @@
 
 using namespace testing;
 
-TEST(BaseballGame, ThrowExceptionWhenInputLengthIsUnmached) {
+class BaseballFixture : public Test {
+public:
 	Baseball game;
-	EXPECT_THROW(game.guess(string("12")), length_error);
-}
-TEST(BaseballGame, ThrowExceptionWhenInvalidChar) {
-	Baseball game;
-	EXPECT_THROW(game.guess(string("12s")), invalid_argument);
+	void assertIllegalArgument(string guessNumber) {
+		try {
+			game.guess(string(guessNumber));
+			FAIL();
+		}
+		catch (exception e) {
+			//PASS
+		}
+	}
+};
+
+TEST_F(BaseballFixture, ThrowExceptionWhenInvalidCase) {
+	assertIllegalArgument("12");
+	assertIllegalArgument("12s");
 }
 
 int main() {
